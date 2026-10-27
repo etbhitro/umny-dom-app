@@ -321,6 +321,8 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   background: var(--bg);
   overflow-y: auto;
 }
+/* display:grid выше перебивает атрибут hidden — без этого экран входа оставался поверх дома. */
+.cloud-gate[hidden] { display: none; }
 .cg-card { width: min(380px, 100%); display: grid; gap: 14px; }
 .cg-brand { display: flex; align-items: center; gap: 12px; font-size: 20px; font-weight: 600; margin-bottom: 8px; }
 .cg-brand img { border-radius: 10px; }
