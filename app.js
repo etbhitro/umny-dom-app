@@ -72,6 +72,7 @@ function connect() {
       S.clockSkew = data.now - Date.now();
       renderAll();
       refreshFrames();
+      checkPhonePair();
       runSceneFromUrl();
     } else if (type === 'device') {
       S.devices.set(data.id, data);
@@ -426,46 +427,28 @@ $('tabs').addEventListener('click', (e) => {
   for (const b of $('tabs').children) b.classList.toggle('active', b === btn);
   $('view-home').hidden = S.view !== 'home';
   $('view-log').hidden = S.view !== 'log';
-  if (S.view === 'log') {
-    renderLog();
-    renderCloudPair();
-  }
+  if (S.view === 'log') renderLog();
 });
 
-// ---------- приложение на телефоне: код привязки к облаку ----------
+// ---------- подключить телефон: QR на экране дома ----------
 
-async function renderCloudPair(fresh) {
-  const card = $('cloud-pair');
-  let st;
+// Кнопка видна только на панели самого дома, если хаб подключён к облаку.
+// В приложении на телефоне (cloud.js) её нет — телефон уже подключён.
+async function checkPhonePair() {
+  if (window.DOM_CLOUD || window.DOM_DEMO) return;
   try {
-    st = fresh ?? (await api('/cloud', null, 'GET'));
+    const st = await api('/cloud', null, 'GET');
+    $('phone-pair').hidden = !(st.enabled && st.connected);
   } catch {
-    return;
-  }
-  card.hidden = !st.enabled;
-  if (!st.enabled) return;
-  const sub = $('cloud-pair-sub');
-  const btn = $('cloud-pair-btn');
-  if (!st.connected) {
-    sub.textContent = st.error ? `Нет связи с облаком: ${st.error}` : 'Подключаемся к облаку…';
-    btn.hidden = true;
-    return;
-  }
-  btn.hidden = false;
-  if (st.code) {
-    const min = Math.max(1, Math.round((new Date(st.codeExpiresAt).getTime() - Date.now()) / 60000));
-    sub.innerHTML = `Код <span class="code-big">${esc(st.code.slice(0, 3))} ${esc(st.code.slice(3))}</span> · ещё ${min} мин — введите его в приложении`;
-    btn.textContent = 'Новый код';
-  } else {
-    sub.textContent = st.viewers ? `Подключено · сейчас открыто приложений: ${st.viewers}` : 'Подключено к облаку. Чтобы добавить телефон, покажите код';
-    btn.textContent = 'Показать код';
+    // облака нет — кнопки нет
   }
 }
 
-$('cloud-pair-btn').addEventListener('click', async () => {
+$('phone-pair').addEventListener('click', async () => {
   try {
-    await api('/cloud/code');
-    renderCloudPair();
+    const { svg } = await api('/cloud/pair');
+    openInfo('Наведите камеру телефона', 'Откроется приложение — нажмите «Включить Face ID». QR действует 10 минут.');
+    $('sheet-actions').innerHTML = `<div class="qr">${svg}</div>`;
   } catch (err) {
     toast(err.message);
   }

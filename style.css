@@ -342,7 +342,10 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
 .cg-note { margin: 0; min-height: 1.4em; color: var(--warm); }
 
 #cloud-account { flex-wrap: wrap; }
-.code-big { font-size: 22px; letter-spacing: 0.25em; font-variant-numeric: tabular-nums; color: var(--text); }
+.qr { background: #fff; border-radius: 20px; padding: 16px; justify-self: center; width: min(320px, 100%); }
+.qr svg { display: block; width: 100%; height: auto; }
+.cg-big { padding: 18px; font-size: 18px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.cg-ghost { padding: 14px; border-radius: 14px; background: var(--card); color: var(--text); font-size: 16px; }
 
 /* ---------- мелочи ---------- */
 
